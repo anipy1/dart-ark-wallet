@@ -9,3 +9,6 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Arc < Client < EsploraClient , Wallet , SqliteSwapStorage > >>>
 abstract class ArcClientEsploraClientWalletSqliteSwapStorage
     implements RustOpaqueInterface {}
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Arc < VtxoWatcherHandle >>>
+abstract class ArcVtxoWatcherHandle implements RustOpaqueInterface {}

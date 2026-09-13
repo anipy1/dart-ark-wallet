@@ -12,6 +12,7 @@ anyhow = "1"
 ark-bdk-wallet = { git = "https://github.com/arkade-os/rust-sdk.git", rev = "d8bc8a3" }
 ark-core = { git = "https://github.com/arkade-os/rust-sdk.git", rev = "d8bc8a3" }
 ark-client = { git = "https://github.com/arkade-os/rust-sdk.git", rev = "d8bc8a3", default-features = false, features = ["tls-webpki-roots", "sqlite"] }
+ark-delegator = { git = "https://github.com/arkade-os/rust-sdk.git", rev = "d8bc8a3" }
 bitcoin = { version = "0.32.7" }
 esplora-client = { version = "0.11.0", features = ["async-https-native"] }
 rand = "0.8.5"

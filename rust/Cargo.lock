@@ -231,6 +231,7 @@ dependencies = [
  "ark-bdk-wallet",
  "ark-client",
  "ark-core",
+ "ark-delegator",
  "bitcoin",
  "esplora-client",
  "flutter_rust_bridge",

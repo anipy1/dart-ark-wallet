@@ -19,6 +19,11 @@ const kBoltzUrl = 'https://api.boltz.exchange';
 /// sees every address this wallet queries.
 const kEsploraUrl = 'https://blockstream.info/api';
 
+/// Delegated renewal. The delegate can only renew VTXOs, never move funds, and keeps them from
+/// expiring while the wallet is closed. Note that enabling it changes the addresses this wallet
+/// produces, because a delegated VTXO carries an extra Taproot leaf.
+const kDelegatorUrl = 'https://delegate.arkade.money';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ark.LibArk.init();
@@ -100,6 +105,7 @@ class _HomePageState extends State<HomePage> {
       server: kArkServer,
       boltz: kBoltzUrl,
       dataDir: dataDir.path,
+      delegatorUrl: kDelegatorUrl,
     );
   }
 

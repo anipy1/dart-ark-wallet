@@ -16,7 +16,11 @@ import 'transactions.dart';
 abstract class ArkWallet implements RustOpaqueInterface {
   ArcClientEsploraClientWalletSqliteSwapStorage get inner;
 
+  ArcVtxoWatcherHandle? get watcher;
+
   set inner(ArcClientEsploraClientWalletSqliteSwapStorage inner);
+
+  set watcher(ArcVtxoWatcherHandle? watcher);
 
   Future<Balance> balance();
 
@@ -34,7 +38,9 @@ abstract class ArkWallet implements RustOpaqueInterface {
 
   /// Initialise an Ark wallet.
   ///
-  /// `secret_key` is a 32-byte BIP32 seed. The on-chain wallet and the Ark identity keys are both
+  /// `secret_key` is a BIP32 seed of 16 to 64 bytes - pass the wallet's BIP39 seed directly so
+  /// that Ark derives from the same master key as the rest of the wallet, and the mnemonic alone
+  /// is enough to recover Ark funds. The on-chain wallet and the Ark identity keys are both
   /// derived from it, so the same seed always yields the same addresses on a given network.
   ///
   /// `network` accepts the values understood by rust-bitcoin: `bitcoin` (mainnet), `signet`,
@@ -42,6 +48,11 @@ abstract class ArkWallet implements RustOpaqueInterface {
   ///
   /// `data_dir` is a writable directory used to persist swap state across restarts. It is
   /// created if it does not exist.
+  ///
+  /// `delegator_url` opts into delegated renewal. A delegate can only renew VTXOs - it cannot
+  /// move funds - but it changes the addresses this wallet produces, because a delegated VTXO
+  /// carries a third Taproot leaf. Enabling or disabling it later therefore yields different
+  /// addresses, so decide before funds arrive.
   static Future<ArkWallet> init({
     required List<int> secretKey,
     required String network,
@@ -49,6 +60,7 @@ abstract class ArkWallet implements RustOpaqueInterface {
     required String server,
     required String boltz,
     required String dataDir,
+    String? delegatorUrl,
   }) => LibArk.instance.api.crateArkClientArkWalletInit(
     secretKey: secretKey,
     network: network,
@@ -56,6 +68,7 @@ abstract class ArkWallet implements RustOpaqueInterface {
     server: server,
     boltz: boltz,
     dataDir: dataDir,
+    delegatorUrl: delegatorUrl,
   );
 
   /// Ark (off-chain) address. Now async: the SDK derives it through the key provider.

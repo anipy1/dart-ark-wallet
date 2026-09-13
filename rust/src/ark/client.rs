@@ -1,5 +1,7 @@
 use crate::ark::esplora::EsploraClient;
 use anyhow::{anyhow, Result};
+use ark_client::vtxo_watcher::VtxoWatcherConfig;
+use ark_delegator::DelegatorClient;
 use bitcoin::bip32::Xpriv;
 use bitcoin::Network;
 use std::str::FromStr;
@@ -7,6 +9,7 @@ use std::sync::Arc;
 
 // Re-export types that flutter_rust_bridge needs
 pub use ark_bdk_wallet::Wallet;
+pub use ark_client::vtxo_watcher::VtxoWatcherHandle;
 pub use ark_client::{Client, OfflineClient, OfflineClientConfig, SqliteSwapStorage};
 
 /// BIP32 master-key generation accepts a seed of 16..=64 bytes (BIP39 produces 64).
@@ -16,6 +19,9 @@ const SEED_LEN_MAX: usize = 64;
 #[derive(Clone)]
 pub struct ArkWallet {
     pub inner: Arc<Client<EsploraClient, Wallet, SqliteSwapStorage>>,
+    /// Keeps the VTXO watcher alive. The watcher stops as soon as its handle is dropped, so this
+    /// must be held for the lifetime of the wallet.
+    pub watcher: Option<Arc<VtxoWatcherHandle>>,
 }
 
 impl ArkWallet {
@@ -31,6 +37,11 @@ impl ArkWallet {
     ///
     /// `data_dir` is a writable directory used to persist swap state across restarts. It is
     /// created if it does not exist.
+    ///
+    /// `delegator_url` opts into delegated renewal. A delegate can only renew VTXOs - it cannot
+    /// move funds - but it changes the addresses this wallet produces, because a delegated VTXO
+    /// carries a third Taproot leaf. Enabling or disabling it later therefore yields different
+    /// addresses, so decide before funds arrive.
     pub async fn init(
         secret_key: Vec<u8>,
         network: String,
@@ -38,6 +49,7 @@ impl ArkWallet {
         server: String,
         boltz: String,
         data_dir: String,
+        delegator_url: Option<String>,
     ) -> Result<ArkWallet> {
         if !(SEED_LEN_MIN..=SEED_LEN_MAX).contains(&secret_key.len()) {
             return Err(anyhow!(
@@ -85,10 +97,29 @@ impl ArkWallet {
                 })?,
         );
 
+        // Resolve the delegate first: its public key has to be known before the client is built,
+        // because it becomes part of every VTXO this wallet creates.
+        let delegator = match delegator_url {
+            Some(url) => {
+                let client = Arc::new(DelegatorClient::new(url.clone()));
+                let info = client.info().await.map_err(|e| {
+                    anyhow!("Failed to reach the delegate at '{}': {}", url, e)
+                })?;
+                let pk: bitcoin::PublicKey = info.pubkey.parse().map_err(|e| {
+                    anyhow!("Delegate returned an unusable public key '{}': {}", info.pubkey, e)
+                })?;
+                let pk: bitcoin::XOnlyPublicKey = pk.into();
+
+                Some((client, pk))
+            }
+            None => None,
+        };
+
         // `OfflineClientConfig::default()` targets mainnet; the caller's URLs override that.
         let config = OfflineClientConfig {
             ark_server_url: server.clone(),
             boltz_url: boltz,
+            delegator_pk: delegator.as_ref().map(|(_, pk)| *pk),
             ..Default::default()
         };
 
@@ -104,8 +135,17 @@ impl ArkWallet {
         .await
         .map_err(|err| anyhow!("Failed to connect to Ark server at '{}': {}", server, err))?;
 
+        let client = Arc::new(client);
+
+        // The watcher performs the renewals the delegate is authorised for. Without a delegate
+        // there is nothing to drive, so it is only started when one is configured.
+        let watcher = delegator.map(|(delegator_client, _)| {
+            Arc::new(client.start_vtxo_watcher(delegator_client, VtxoWatcherConfig::default()))
+        });
+
         Ok(ArkWallet {
-            inner: Arc::new(client),
+            inner: client,
+            watcher,
         })
     }
 }
