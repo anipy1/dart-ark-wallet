@@ -13,6 +13,7 @@ class SendPage extends StatefulWidget {
 
 class _SendPageState extends State<SendPage> {
   int _balance = 0;
+  bool _sending = false;
   final _addressController = TextEditingController();
   final _amountController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -103,23 +104,36 @@ class _SendPageState extends State<SendPage> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      try {
-                        widget.client.sendOffChain(
-                          address: _addressController.text,
-                          sats: int.parse(_amountController.text),
-                        );
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => HomePage()),
-                        );
-                      } catch (e) {
-                        debugPrint(e.toString());
-                      }
-                    }
-                  },
-                  child: const Text('Send'),
+                  onPressed: _sending
+                      ? null
+                      : () async {
+                          if (!_formKey.currentState!.validate()) return;
+                          setState(() => _sending = true);
+                          try {
+                            // Must be awaited: without it the try/catch cannot see a failure and
+                            // we would navigate away as though the send had succeeded.
+                            final txid = await widget.client.sendOffChain(
+                              address: _addressController.text,
+                              sats: int.parse(_amountController.text),
+                            );
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Sent: $txid')),
+                            );
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => const HomePage()),
+                            );
+                          } catch (e) {
+                            debugPrint(e.toString());
+                            if (!context.mounted) return;
+                            setState(() => _sending = false);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Send failed: $e')),
+                            );
+                          }
+                        },
+                  child: Text(_sending ? 'Sending...' : 'Send'),
                 ),
               ),
             ],
