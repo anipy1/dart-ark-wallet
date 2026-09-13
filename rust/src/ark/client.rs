@@ -9,8 +9,9 @@ use std::sync::Arc;
 pub use ark_bdk_wallet::Wallet;
 pub use ark_client::{Client, OfflineClient, OfflineClientConfig, SqliteSwapStorage};
 
-/// Seed length required by [`ArkWallet::init`].
-const SEED_LEN: usize = 32;
+/// BIP32 master-key generation accepts a seed of 16..=64 bytes (BIP39 produces 64).
+const SEED_LEN_MIN: usize = 16;
+const SEED_LEN_MAX: usize = 64;
 
 #[derive(Clone)]
 pub struct ArkWallet {
@@ -20,7 +21,9 @@ pub struct ArkWallet {
 impl ArkWallet {
     /// Initialise an Ark wallet.
     ///
-    /// `secret_key` is a 32-byte BIP32 seed. The on-chain wallet and the Ark identity keys are both
+    /// `secret_key` is a BIP32 seed of 16 to 64 bytes - pass the wallet's BIP39 seed directly so
+    /// that Ark derives from the same master key as the rest of the wallet, and the mnemonic alone
+    /// is enough to recover Ark funds. The on-chain wallet and the Ark identity keys are both
     /// derived from it, so the same seed always yields the same addresses on a given network.
     ///
     /// `network` accepts the values understood by rust-bitcoin: `bitcoin` (mainnet), `signet`,
@@ -36,10 +39,11 @@ impl ArkWallet {
         boltz: String,
         data_dir: String,
     ) -> Result<ArkWallet> {
-        if secret_key.len() != SEED_LEN {
+        if !(SEED_LEN_MIN..=SEED_LEN_MAX).contains(&secret_key.len()) {
             return Err(anyhow!(
-                "Seed must be {} bytes, got {}",
-                SEED_LEN,
+                "Seed must be between {} and {} bytes, got {}",
+                SEED_LEN_MIN,
+                SEED_LEN_MAX,
                 secret_key.len()
             ));
         }
