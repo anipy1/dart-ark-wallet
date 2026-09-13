@@ -1054,6 +1054,17 @@ impl SseDecode for Option<i64> {
     }
 }
 
+impl SseDecode for Option<u32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<u32>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
 impl SseDecode for crate::ark::server_info::ServerInfo {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -1065,7 +1076,11 @@ impl SseDecode for crate::ark::server_info::ServerInfo {
         let mut var_network = <String>::sse_decode(deserializer);
         let mut var_sessionDuration = <i64>::sse_decode(deserializer);
         let mut var_unilateralExitDelay = <u32>::sse_decode(deserializer);
+        let mut var_unilateralExitDelaySeconds = <Option<i64>>::sse_decode(deserializer);
+        let mut var_unilateralExitDelayBlocks = <Option<u32>>::sse_decode(deserializer);
         let mut var_boardingExitDelay = <u32>::sse_decode(deserializer);
+        let mut var_boardingExitDelaySeconds = <Option<i64>>::sse_decode(deserializer);
+        let mut var_boardingExitDelayBlocks = <Option<u32>>::sse_decode(deserializer);
         let mut var_utxoMinAmount = <Option<i64>>::sse_decode(deserializer);
         let mut var_utxoMaxAmount = <Option<i64>>::sse_decode(deserializer);
         let mut var_vtxoMinAmount = <Option<i64>>::sse_decode(deserializer);
@@ -1081,7 +1096,11 @@ impl SseDecode for crate::ark::server_info::ServerInfo {
             network: var_network,
             session_duration: var_sessionDuration,
             unilateral_exit_delay: var_unilateralExitDelay,
+            unilateral_exit_delay_seconds: var_unilateralExitDelaySeconds,
+            unilateral_exit_delay_blocks: var_unilateralExitDelayBlocks,
             boarding_exit_delay: var_boardingExitDelay,
+            boarding_exit_delay_seconds: var_boardingExitDelaySeconds,
+            boarding_exit_delay_blocks: var_boardingExitDelayBlocks,
             utxo_min_amount: var_utxoMinAmount,
             utxo_max_amount: var_utxoMaxAmount,
             vtxo_min_amount: var_vtxoMinAmount,
@@ -1361,7 +1380,17 @@ impl flutter_rust_bridge::IntoDart for crate::ark::server_info::ServerInfo {
             self.network.into_into_dart().into_dart(),
             self.session_duration.into_into_dart().into_dart(),
             self.unilateral_exit_delay.into_into_dart().into_dart(),
+            self.unilateral_exit_delay_seconds
+                .into_into_dart()
+                .into_dart(),
+            self.unilateral_exit_delay_blocks
+                .into_into_dart()
+                .into_dart(),
             self.boarding_exit_delay.into_into_dart().into_dart(),
+            self.boarding_exit_delay_seconds
+                .into_into_dart()
+                .into_dart(),
+            self.boarding_exit_delay_blocks.into_into_dart().into_dart(),
             self.utxo_min_amount.into_into_dart().into_dart(),
             self.utxo_max_amount.into_into_dart().into_dart(),
             self.vtxo_min_amount.into_into_dart().into_dart(),
@@ -1607,6 +1636,16 @@ impl SseEncode for Option<i64> {
     }
 }
 
+impl SseEncode for Option<u32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <u32>::sse_encode(value, serializer);
+        }
+    }
+}
+
 impl SseEncode for crate::ark::server_info::ServerInfo {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -1618,7 +1657,11 @@ impl SseEncode for crate::ark::server_info::ServerInfo {
         <String>::sse_encode(self.network, serializer);
         <i64>::sse_encode(self.session_duration, serializer);
         <u32>::sse_encode(self.unilateral_exit_delay, serializer);
+        <Option<i64>>::sse_encode(self.unilateral_exit_delay_seconds, serializer);
+        <Option<u32>>::sse_encode(self.unilateral_exit_delay_blocks, serializer);
         <u32>::sse_encode(self.boarding_exit_delay, serializer);
+        <Option<i64>>::sse_encode(self.boarding_exit_delay_seconds, serializer);
+        <Option<u32>>::sse_encode(self.boarding_exit_delay_blocks, serializer);
         <Option<i64>>::sse_encode(self.utxo_min_amount, serializer);
         <Option<i64>>::sse_encode(self.utxo_max_amount, serializer);
         <Option<i64>>::sse_encode(self.vtxo_min_amount, serializer);

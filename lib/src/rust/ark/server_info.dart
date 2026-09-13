@@ -6,6 +6,8 @@
 import '../frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
+// These functions are ignored because they are not marked as `pub`: `decode_blocks`, `decode_seconds`
+
 class ServerInfo {
   final String version;
   final String signerPubkey;
@@ -14,8 +16,19 @@ class ServerInfo {
   final String checkpointTapscript;
   final String network;
   final PlatformInt64 sessionDuration;
+
+  /// Raw BIP68 sequence value. Prefer the decoded `*_seconds` / `*_blocks` fields below:
+  /// the raw number is an encoding, not a duration.
   final int unilateralExitDelay;
+
+  /// Decoded delay in seconds, when the timelock is time-based.
+  final PlatformInt64? unilateralExitDelaySeconds;
+
+  /// Decoded delay in blocks, when the timelock is height-based.
+  final int? unilateralExitDelayBlocks;
   final int boardingExitDelay;
+  final PlatformInt64? boardingExitDelaySeconds;
+  final int? boardingExitDelayBlocks;
   final PlatformInt64? utxoMinAmount;
   final PlatformInt64? utxoMaxAmount;
   final PlatformInt64? vtxoMinAmount;
@@ -32,7 +45,11 @@ class ServerInfo {
     required this.network,
     required this.sessionDuration,
     required this.unilateralExitDelay,
+    this.unilateralExitDelaySeconds,
+    this.unilateralExitDelayBlocks,
     required this.boardingExitDelay,
+    this.boardingExitDelaySeconds,
+    this.boardingExitDelayBlocks,
     this.utxoMinAmount,
     this.utxoMaxAmount,
     this.vtxoMinAmount,
@@ -51,7 +68,11 @@ class ServerInfo {
       network.hashCode ^
       sessionDuration.hashCode ^
       unilateralExitDelay.hashCode ^
+      unilateralExitDelaySeconds.hashCode ^
+      unilateralExitDelayBlocks.hashCode ^
       boardingExitDelay.hashCode ^
+      boardingExitDelaySeconds.hashCode ^
+      boardingExitDelayBlocks.hashCode ^
       utxoMinAmount.hashCode ^
       utxoMaxAmount.hashCode ^
       vtxoMinAmount.hashCode ^
@@ -72,7 +93,11 @@ class ServerInfo {
           network == other.network &&
           sessionDuration == other.sessionDuration &&
           unilateralExitDelay == other.unilateralExitDelay &&
+          unilateralExitDelaySeconds == other.unilateralExitDelaySeconds &&
+          unilateralExitDelayBlocks == other.unilateralExitDelayBlocks &&
           boardingExitDelay == other.boardingExitDelay &&
+          boardingExitDelaySeconds == other.boardingExitDelaySeconds &&
+          boardingExitDelayBlocks == other.boardingExitDelayBlocks &&
           utxoMinAmount == other.utxoMinAmount &&
           utxoMaxAmount == other.utxoMaxAmount &&
           vtxoMinAmount == other.vtxoMinAmount &&

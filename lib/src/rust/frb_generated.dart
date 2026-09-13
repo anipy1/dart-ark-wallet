@@ -885,6 +885,12 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
   }
 
   @protected
+  int dco_decode_box_autoadd_u_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as int;
+  }
+
+  @protected
   PlatformInt64 dco_decode_i_64(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dcoDecodeI64(raw);
@@ -921,11 +927,17 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
   }
 
   @protected
+  int? dco_decode_opt_box_autoadd_u_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_u_32(raw);
+  }
+
+  @protected
   ServerInfo dco_decode_server_info(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 15)
-      throw Exception('unexpected arr length: expect 15 but see ${arr.length}');
+    if (arr.length != 19)
+      throw Exception('unexpected arr length: expect 19 but see ${arr.length}');
     return ServerInfo(
       version: dco_decode_String(arr[0]),
       signerPubkey: dco_decode_String(arr[1]),
@@ -935,13 +947,17 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
       network: dco_decode_String(arr[5]),
       sessionDuration: dco_decode_i_64(arr[6]),
       unilateralExitDelay: dco_decode_u_32(arr[7]),
-      boardingExitDelay: dco_decode_u_32(arr[8]),
-      utxoMinAmount: dco_decode_opt_box_autoadd_i_64(arr[9]),
-      utxoMaxAmount: dco_decode_opt_box_autoadd_i_64(arr[10]),
-      vtxoMinAmount: dco_decode_opt_box_autoadd_i_64(arr[11]),
-      vtxoMaxAmount: dco_decode_opt_box_autoadd_i_64(arr[12]),
-      dust: dco_decode_i_64(arr[13]),
-      digest: dco_decode_String(arr[14]),
+      unilateralExitDelaySeconds: dco_decode_opt_box_autoadd_i_64(arr[8]),
+      unilateralExitDelayBlocks: dco_decode_opt_box_autoadd_u_32(arr[9]),
+      boardingExitDelay: dco_decode_u_32(arr[10]),
+      boardingExitDelaySeconds: dco_decode_opt_box_autoadd_i_64(arr[11]),
+      boardingExitDelayBlocks: dco_decode_opt_box_autoadd_u_32(arr[12]),
+      utxoMinAmount: dco_decode_opt_box_autoadd_i_64(arr[13]),
+      utxoMaxAmount: dco_decode_opt_box_autoadd_i_64(arr[14]),
+      vtxoMinAmount: dco_decode_opt_box_autoadd_i_64(arr[15]),
+      vtxoMaxAmount: dco_decode_opt_box_autoadd_i_64(arr[16]),
+      dust: dco_decode_i_64(arr[17]),
+      digest: dco_decode_String(arr[18]),
     );
   }
 
@@ -1164,6 +1180,12 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
   }
 
   @protected
+  int sse_decode_box_autoadd_u_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_u_32(deserializer));
+  }
+
+  @protected
   PlatformInt64 sse_decode_i_64(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return deserializer.buffer.getPlatformInt64();
@@ -1218,6 +1240,17 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
   }
 
   @protected
+  int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_u_32(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
   ServerInfo sse_decode_server_info(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_version = sse_decode_String(deserializer);
@@ -1228,7 +1261,19 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
     var var_network = sse_decode_String(deserializer);
     var var_sessionDuration = sse_decode_i_64(deserializer);
     var var_unilateralExitDelay = sse_decode_u_32(deserializer);
+    var var_unilateralExitDelaySeconds = sse_decode_opt_box_autoadd_i_64(
+      deserializer,
+    );
+    var var_unilateralExitDelayBlocks = sse_decode_opt_box_autoadd_u_32(
+      deserializer,
+    );
     var var_boardingExitDelay = sse_decode_u_32(deserializer);
+    var var_boardingExitDelaySeconds = sse_decode_opt_box_autoadd_i_64(
+      deserializer,
+    );
+    var var_boardingExitDelayBlocks = sse_decode_opt_box_autoadd_u_32(
+      deserializer,
+    );
     var var_utxoMinAmount = sse_decode_opt_box_autoadd_i_64(deserializer);
     var var_utxoMaxAmount = sse_decode_opt_box_autoadd_i_64(deserializer);
     var var_vtxoMinAmount = sse_decode_opt_box_autoadd_i_64(deserializer);
@@ -1244,7 +1289,11 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
       network: var_network,
       sessionDuration: var_sessionDuration,
       unilateralExitDelay: var_unilateralExitDelay,
+      unilateralExitDelaySeconds: var_unilateralExitDelaySeconds,
+      unilateralExitDelayBlocks: var_unilateralExitDelayBlocks,
       boardingExitDelay: var_boardingExitDelay,
+      boardingExitDelaySeconds: var_boardingExitDelaySeconds,
+      boardingExitDelayBlocks: var_boardingExitDelayBlocks,
       utxoMinAmount: var_utxoMinAmount,
       utxoMaxAmount: var_utxoMaxAmount,
       vtxoMinAmount: var_vtxoMinAmount,
@@ -1498,6 +1547,12 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
   }
 
   @protected
+  void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_32(self, serializer);
+  }
+
+  @protected
   void sse_encode_i_64(PlatformInt64 self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putPlatformInt64(self);
@@ -1561,6 +1616,16 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
   }
 
   @protected
+  void sse_encode_opt_box_autoadd_u_32(int? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_u_32(self, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_server_info(ServerInfo self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.version, serializer);
@@ -1571,7 +1636,14 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
     sse_encode_String(self.network, serializer);
     sse_encode_i_64(self.sessionDuration, serializer);
     sse_encode_u_32(self.unilateralExitDelay, serializer);
+    sse_encode_opt_box_autoadd_i_64(
+      self.unilateralExitDelaySeconds,
+      serializer,
+    );
+    sse_encode_opt_box_autoadd_u_32(self.unilateralExitDelayBlocks, serializer);
     sse_encode_u_32(self.boardingExitDelay, serializer);
+    sse_encode_opt_box_autoadd_i_64(self.boardingExitDelaySeconds, serializer);
+    sse_encode_opt_box_autoadd_u_32(self.boardingExitDelayBlocks, serializer);
     sse_encode_opt_box_autoadd_i_64(self.utxoMinAmount, serializer);
     sse_encode_opt_box_autoadd_i_64(self.utxoMaxAmount, serializer);
     sse_encode_opt_box_autoadd_i_64(self.vtxoMinAmount, serializer);
