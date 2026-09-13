@@ -5,6 +5,5 @@ pub mod esplora;
 pub mod send;
 pub mod server_info;
 pub mod settle;
-pub mod storage;
 pub mod transactions;
 pub mod utils;

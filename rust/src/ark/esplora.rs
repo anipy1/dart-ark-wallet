@@ -1,5 +1,6 @@
 use ark_client::error::IntoError;
-use ark_client::{Blockchain, Error, ExplorerUtxo, SpendStatus};
+use ark_client::{Blockchain, Error, SpendStatus, TxStatus};
+use ark_core::ExplorerUtxo;
 use bitcoin::OutPoint;
 use bitcoin::{Address, Amount, Transaction, Txid};
 
@@ -16,10 +17,23 @@ impl Blockchain for EsploraClient {
             .await
             .map_err(|e| format!("Could not fetch tx {e:#}").into_error())?;
 
+        // `ExplorerUtxo::confirmations` is derived from the current tip.
+        let tip_height = self
+            .esplora_client
+            .get_height()
+            .await
+            .map_err(|e| format!("Could not fetch tip height {e:#}").into_error())?
+            as u64;
+
         let outputs = txs
             .into_iter()
             .flat_map(|tx| {
                 let txid = tx.txid;
+                let confirmations = tx
+                    .status
+                    .block_height
+                    .map(|h| tip_height.saturating_sub(h as u64) + 1)
+                    .unwrap_or(0);
                 tx.vout
                     .iter()
                     .enumerate()
@@ -31,6 +45,7 @@ impl Blockchain for EsploraClient {
                         },
                         amount: Amount::from_sat(v.value),
                         confirmation_blocktime: tx.status.block_time,
+                        confirmations,
                         is_spent: false,
                     })
                     .collect::<Vec<_>>()
@@ -70,6 +85,18 @@ impl Blockchain for EsploraClient {
                 Ok(None)
             }
         }
+    }
+
+    async fn get_tx_status(&self, txid: &Txid) -> Result<TxStatus, Error> {
+        let status = self
+            .esplora_client
+            .get_tx_status(txid)
+            .await
+            .map_err(|e| format!("Could not fetch tx status {e:#}").into_error())?;
+
+        Ok(TxStatus {
+            confirmed_at: status.block_time.map(|t| t as i64),
+        })
     }
 
     async fn get_output_status(&self, txid: &Txid, vout: u32) -> Result<SpendStatus, Error> {

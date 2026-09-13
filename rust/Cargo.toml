@@ -7,12 +7,12 @@ edition = "2021"
 crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
-flutter_rust_bridge = { version = "=2.9.0", features = ["anyhow"] }
+flutter_rust_bridge = { version = "=2.11.1", features = ["anyhow"] }
 anyhow = "1"
-ark-bdk-wallet = { git = "https://github.com/ArkLabsHQ/ark-rs.git", rev = "f64b45" }
-ark-core = { git = "https://github.com/ArkLabsHQ/ark-rs.git", rev = "f64b45" }
-ark-client = { git = "https://github.com/ArkLabsHQ/ark-rs.git", rev = "f64b45", default-features = false, features = ["tls-webpki-roots"] }
-bitcoin = { version = "0.32.4" }
+ark-bdk-wallet = { git = "https://github.com/arkade-os/rust-sdk.git", rev = "d8bc8a3" }
+ark-core = { git = "https://github.com/arkade-os/rust-sdk.git", rev = "d8bc8a3" }
+ark-client = { git = "https://github.com/arkade-os/rust-sdk.git", rev = "d8bc8a3", default-features = false, features = ["tls-webpki-roots", "sqlite"] }
+bitcoin = { version = "0.32.7" }
 esplora-client = { version = "0.11.0", features = ["async-https-native"] }
 rand = "0.8.5"
 openssl = { version = "0.10", features = ["vendored"] } 

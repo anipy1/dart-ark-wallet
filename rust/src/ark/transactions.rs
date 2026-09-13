@@ -18,6 +18,12 @@ pub enum Transaction {
         is_settled: bool,
         created_at: i64,
     },
+    /// VTXOs offboarded to an on-chain output. Always outgoing.
+    Offboard {
+        commitment_txid: String,
+        sats: i64,
+        confirmed_at: Option<i64>,
+    },
 }
 
 impl ArkWallet {
@@ -62,6 +68,15 @@ impl ArkWallet {
                     sats: amount.to_sat(),
                     is_settled,
                     created_at,
+                },
+                ark_core::history::Transaction::Offboard {
+                    commitment_txid,
+                    amount,
+                    confirmed_at,
+                } => Transaction::Offboard {
+                    commitment_txid: commitment_txid.to_string(),
+                    sats: amount.to_sat() as i64,
+                    confirmed_at,
                 },
             })
             .collect();

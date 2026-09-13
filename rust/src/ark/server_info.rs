@@ -1,5 +1,4 @@
-use anyhow::Result;
-use flutter_rust_bridge::frb;
+use anyhow::{anyhow, Result};
 
 use crate::ark::client::ArkWallet;
 
@@ -22,9 +21,12 @@ pub struct ServerInfo {
 }
 
 impl ArkWallet {
-    #[frb(sync)]
-    pub fn server_info(&self) -> Result<ServerInfo> {
-        let info = self.inner.server_info.clone();
+    pub async fn server_info(&self) -> Result<ServerInfo> {
+        let info = self
+            .inner
+            .server_info()
+            .await
+            .map_err(|e| anyhow!("Could not fetch server info {e:#}"))?;
         Ok(ServerInfo {
             version: info.version,
             signer_pubkey: info.signer_pk.to_string(),
