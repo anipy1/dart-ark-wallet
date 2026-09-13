@@ -16,12 +16,36 @@ pub use ark_client::{Client, OfflineClient, OfflineClientConfig, SqliteSwapStora
 const SEED_LEN_MIN: usize = 16;
 const SEED_LEN_MAX: usize = 64;
 
+/// The delegate this wallet renews through, as reported by the service itself.
+///
+/// Read-only: the delegate is part of every address the wallet derives, so it cannot be changed
+/// once funds exist. Exposed so the wallet can show who is authorised to renew its VTXOs.
+#[derive(Clone)]
+pub struct ArkDelegate {
+    pub url: String,
+    /// Hex-encoded public key. This key appears in the third Taproot leaf of every VTXO.
+    pub pubkey: String,
+    /// What the service charges per renewal, in sats, verbatim as it reported it.
+    pub fee: String,
+    /// Where the service collects its fee on-chain.
+    pub address: String,
+}
+
 #[derive(Clone)]
 pub struct ArkWallet {
     pub inner: Arc<Client<EsploraClient, Wallet, SqliteSwapStorage>>,
     /// Keeps the VTXO watcher alive. The watcher stops as soon as its handle is dropped, so this
     /// must be held for the lifetime of the wallet.
     pub watcher: Option<Arc<VtxoWatcherHandle>>,
+    /// None when renewal is not delegated.
+    pub delegate: Option<ArkDelegate>,
+}
+
+impl ArkWallet {
+    /// The delegate authorised to renew this wallet's VTXOs, if any.
+    pub fn delegate_info(&self) -> Option<ArkDelegate> {
+        self.delegate.clone()
+    }
 }
 
 impl ArkWallet {
@@ -110,7 +134,14 @@ impl ArkWallet {
                 })?;
                 let pk: bitcoin::XOnlyPublicKey = pk.into();
 
-                Some((client, pk))
+                let delegate = ArkDelegate {
+                    url: url.clone(),
+                    pubkey: info.pubkey.clone(),
+                    fee: info.fee.clone(),
+                    address: info.delegator_address.clone(),
+                };
+
+                Some((client, pk, delegate))
             }
             None => None,
         };
@@ -119,7 +150,7 @@ impl ArkWallet {
         let config = OfflineClientConfig {
             ark_server_url: server.clone(),
             boltz_url: boltz,
-            delegator_pk: delegator.as_ref().map(|(_, pk)| *pk),
+            delegator_pk: delegator.as_ref().map(|(_, pk, _)| *pk),
             ..Default::default()
         };
 
@@ -139,13 +170,15 @@ impl ArkWallet {
 
         // The watcher performs the renewals the delegate is authorised for. Without a delegate
         // there is nothing to drive, so it is only started when one is configured.
-        let watcher = delegator.map(|(delegator_client, _)| {
+        let delegate = delegator.as_ref().map(|(_, _, delegate)| delegate.clone());
+        let watcher = delegator.map(|(delegator_client, _, _)| {
             Arc::new(client.start_vtxo_watcher(delegator_client, VtxoWatcherConfig::default()))
         });
 
         Ok(ArkWallet {
             inner: client,
             watcher,
+            delegate,
         })
     }
 }

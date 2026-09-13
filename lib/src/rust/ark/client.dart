@@ -11,13 +11,17 @@ import 'server_info.dart';
 import 'subscribe.dart';
 import 'transactions.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ArkWallet>>
 abstract class ArkWallet implements RustOpaqueInterface {
+  ArkDelegate? get delegate;
+
   ArcClientEsploraClientWalletSqliteSwapStorage get inner;
 
   ArcVtxoWatcherHandle? get watcher;
+
+  set delegate(ArkDelegate? delegate);
 
   set inner(ArcClientEsploraClientWalletSqliteSwapStorage inner);
 
@@ -36,6 +40,9 @@ abstract class ArkWallet implements RustOpaqueInterface {
     required String address,
     required PlatformInt64 sats,
   });
+
+  /// The delegate authorised to renew this wallet's VTXOs, if any.
+  Future<ArkDelegate?> delegateInfo();
 
   /// Initialise an Ark wallet.
   ///
@@ -101,4 +108,42 @@ abstract class ArkWallet implements RustOpaqueInterface {
   /// listening. Errors end the stream rather than being retried here, so the caller decides
   /// whether to resubscribe.
   Stream<ArkIncomingPayment> watchIncomingPayments();
+}
+
+/// The delegate this wallet renews through, as reported by the service itself.
+///
+/// Read-only: the delegate is part of every address the wallet derives, so it cannot be changed
+/// once funds exist. Exposed so the wallet can show who is authorised to renew its VTXOs.
+class ArkDelegate {
+  final String url;
+
+  /// Hex-encoded public key. This key appears in the third Taproot leaf of every VTXO.
+  final String pubkey;
+
+  /// What the service charges per renewal, in sats, verbatim as it reported it.
+  final String fee;
+
+  /// Where the service collects its fee on-chain.
+  final String address;
+
+  const ArkDelegate({
+    required this.url,
+    required this.pubkey,
+    required this.fee,
+    required this.address,
+  });
+
+  @override
+  int get hashCode =>
+      url.hashCode ^ pubkey.hashCode ^ fee.hashCode ^ address.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ArkDelegate &&
+          runtimeType == other.runtimeType &&
+          url == other.url &&
+          pubkey == other.pubkey &&
+          fee == other.fee &&
+          address == other.address;
 }

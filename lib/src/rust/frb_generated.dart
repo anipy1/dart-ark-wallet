@@ -71,7 +71,7 @@ class LibArk extends BaseEntrypoint<LibArkApi, LibArkApiImpl, LibArkWire> {
   String get codegenVersion => '2.11.1';
 
   @override
-  int get rustContentHash => -908089123;
+  int get rustContentHash => -1934233411;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -82,11 +82,20 @@ class LibArk extends BaseEntrypoint<LibArkApi, LibArkApiImpl, LibArkWire> {
 }
 
 abstract class LibArkApi extends BaseApi {
+  ArkDelegate? crateArkClientArkWalletAutoAccessorGetDelegate({
+    required ArkWallet that,
+  });
+
   ArcClientEsploraClientWalletSqliteSwapStorage
   crateArkClientArkWalletAutoAccessorGetInner({required ArkWallet that});
 
   ArcVtxoWatcherHandle? crateArkClientArkWalletAutoAccessorGetWatcher({
     required ArkWallet that,
+  });
+
+  void crateArkClientArkWalletAutoAccessorSetDelegate({
+    required ArkWallet that,
+    ArkDelegate? delegate,
   });
 
   void crateArkClientArkWalletAutoAccessorSetInner({
@@ -109,6 +118,10 @@ abstract class LibArkApi extends BaseApi {
     required ArkWallet that,
     required String address,
     required PlatformInt64 sats,
+  });
+
+  Future<ArkDelegate?> crateArkClientArkWalletDelegateInfo({
+    required ArkWallet that,
   });
 
   Future<ArkWallet> crateArkClientArkWalletInit({
@@ -206,6 +219,37 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
   });
 
   @override
+  ArkDelegate? crateArkClientArkWalletAutoAccessorGetDelegate({
+    required ArkWallet that,
+  }) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerArkWallet(
+            that,
+            serializer,
+          );
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 1)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_opt_box_autoadd_ark_delegate,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateArkClientArkWalletAutoAccessorGetDelegateConstMeta,
+        argValues: [that],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateArkClientArkWalletAutoAccessorGetDelegateConstMeta =>
+      const TaskConstMeta(
+        debugName: "ArkWallet_auto_accessor_get_delegate",
+        argNames: ["that"],
+      );
+
+  @override
   ArcClientEsploraClientWalletSqliteSwapStorage
   crateArkClientArkWalletAutoAccessorGetInner({required ArkWallet that}) {
     return handler.executeSync(
@@ -216,7 +260,7 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
             that,
             serializer,
           );
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 1)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 2)!;
         },
         codec: SseCodec(
           decodeSuccessData:
@@ -248,7 +292,7 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
             that,
             serializer,
           );
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 2)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 3)!;
         },
         codec: SseCodec(
           decodeSuccessData:
@@ -269,6 +313,39 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
       );
 
   @override
+  void crateArkClientArkWalletAutoAccessorSetDelegate({
+    required ArkWallet that,
+    ArkDelegate? delegate,
+  }) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerArkWallet(
+            that,
+            serializer,
+          );
+          sse_encode_opt_box_autoadd_ark_delegate(delegate, serializer);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 4)!;
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_unit,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateArkClientArkWalletAutoAccessorSetDelegateConstMeta,
+        argValues: [that, delegate],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateArkClientArkWalletAutoAccessorSetDelegateConstMeta =>
+      const TaskConstMeta(
+        debugName: "ArkWallet_auto_accessor_set_delegate",
+        argNames: ["that", "delegate"],
+      );
+
+  @override
   void crateArkClientArkWalletAutoAccessorSetInner({
     required ArkWallet that,
     required ArcClientEsploraClientWalletSqliteSwapStorage inner,
@@ -285,7 +362,7 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
             inner,
             serializer,
           );
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 3)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 5)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_unit,
@@ -321,7 +398,7 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
             watcher,
             serializer,
           );
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 4)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 6)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_unit,
@@ -353,7 +430,7 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 5,
+            funcId: 7,
             port: port_,
           );
         },
@@ -386,7 +463,7 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 6,
+            funcId: 8,
             port: port_,
           );
         },
@@ -426,7 +503,7 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 7,
+            funcId: 9,
             port: port_,
           );
         },
@@ -445,6 +522,42 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
       const TaskConstMeta(
         debugName: "ArkWallet_collaborative_redeem",
         argNames: ["that", "address", "sats"],
+      );
+
+  @override
+  Future<ArkDelegate?> crateArkClientArkWalletDelegateInfo({
+    required ArkWallet that,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerArkWallet(
+            that,
+            serializer,
+          );
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 10,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_opt_box_autoadd_ark_delegate,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateArkClientArkWalletDelegateInfoConstMeta,
+        argValues: [that],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateArkClientArkWalletDelegateInfoConstMeta =>
+      const TaskConstMeta(
+        debugName: "ArkWallet_delegate_info",
+        argNames: ["that"],
       );
 
   @override
@@ -471,7 +584,7 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 8,
+            funcId: 11,
             port: port_,
           );
         },
@@ -524,7 +637,7 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 9,
+            funcId: 12,
             port: port_,
           );
         },
@@ -564,7 +677,7 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 10,
+            funcId: 13,
             port: port_,
           );
         },
@@ -604,7 +717,7 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 11,
+            funcId: 14,
             port: port_,
           );
         },
@@ -640,7 +753,7 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 12,
+            funcId: 15,
             port: port_,
           );
         },
@@ -674,7 +787,7 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 13,
+            funcId: 16,
             port: port_,
           );
         },
@@ -707,7 +820,7 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 14,
+            funcId: 17,
             port: port_,
           );
         },
@@ -746,7 +859,7 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
             pdeCallFfi(
               generalizedFrbRustBinding,
               serializer,
-              funcId: 15,
+              funcId: 18,
               port: port_,
             );
           },
@@ -784,7 +897,7 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 16,
+            funcId: 19,
             port: port_,
           );
         },
@@ -815,7 +928,7 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 17,
+            funcId: 20,
             port: port_,
           );
         },
@@ -841,7 +954,7 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_String(address, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 18)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 21)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_bool,
@@ -864,7 +977,7 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_String(address, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 19)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 22)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_bool,
@@ -1035,6 +1148,20 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
   }
 
   @protected
+  ArkDelegate dco_decode_ark_delegate(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 4)
+      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    return ArkDelegate(
+      url: dco_decode_String(arr[0]),
+      pubkey: dco_decode_String(arr[1]),
+      fee: dco_decode_String(arr[2]),
+      address: dco_decode_String(arr[3]),
+    );
+  }
+
+  @protected
   ArkIncomingPayment dco_decode_ark_incoming_payment(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
@@ -1078,6 +1205,12 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
     return dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerArcVtxoWatcherHandle(
       raw,
     );
+  }
+
+  @protected
+  ArkDelegate dco_decode_box_autoadd_ark_delegate(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_ark_delegate(raw);
   }
 
   @protected
@@ -1133,6 +1266,12 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
         : dco_decode_box_autoadd_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerArcVtxoWatcherHandle(
           raw,
         );
+  }
+
+  @protected
+  ArkDelegate? dco_decode_opt_box_autoadd_ark_delegate(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_ark_delegate(raw);
   }
 
   @protected
@@ -1397,6 +1536,21 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
   }
 
   @protected
+  ArkDelegate sse_decode_ark_delegate(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_url = sse_decode_String(deserializer);
+    var var_pubkey = sse_decode_String(deserializer);
+    var var_fee = sse_decode_String(deserializer);
+    var var_address = sse_decode_String(deserializer);
+    return ArkDelegate(
+      url: var_url,
+      pubkey: var_pubkey,
+      fee: var_fee,
+      address: var_address,
+    );
+  }
+
+  @protected
   ArkIncomingPayment sse_decode_ark_incoming_payment(
     SseDeserializer deserializer,
   ) {
@@ -1445,6 +1599,14 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
     return (sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerArcVtxoWatcherHandle(
       deserializer,
     ));
+  }
+
+  @protected
+  ArkDelegate sse_decode_box_autoadd_ark_delegate(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_ark_delegate(deserializer));
   }
 
   @protected
@@ -1513,6 +1675,19 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
       return (sse_decode_box_autoadd_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerArcVtxoWatcherHandle(
         deserializer,
       ));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  ArkDelegate? sse_decode_opt_box_autoadd_ark_delegate(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_ark_delegate(deserializer));
     } else {
       return null;
     }
@@ -1855,6 +2030,15 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
   }
 
   @protected
+  void sse_encode_ark_delegate(ArkDelegate self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.url, serializer);
+    sse_encode_String(self.pubkey, serializer);
+    sse_encode_String(self.fee, serializer);
+    sse_encode_String(self.address, serializer);
+  }
+
+  @protected
   void sse_encode_ark_incoming_payment(
     ArkIncomingPayment self,
     SseSerializer serializer,
@@ -1893,6 +2077,15 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
       self,
       serializer,
     );
+  }
+
+  @protected
+  void sse_encode_box_autoadd_ark_delegate(
+    ArkDelegate self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_ark_delegate(self, serializer);
   }
 
   @protected
@@ -1974,6 +2167,19 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
         self,
         serializer,
       );
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_ark_delegate(
+    ArkDelegate? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_ark_delegate(self, serializer);
     }
   }
 
@@ -2191,11 +2397,20 @@ class ArkWalletImpl extends RustOpaque implements ArkWallet {
         LibArk.instance.api.rust_arc_decrement_strong_count_ArkWalletPtr,
   );
 
+  ArkDelegate? get delegate => LibArk.instance.api
+      .crateArkClientArkWalletAutoAccessorGetDelegate(that: this);
+
   ArcClientEsploraClientWalletSqliteSwapStorage get inner => LibArk.instance.api
       .crateArkClientArkWalletAutoAccessorGetInner(that: this);
 
   ArcVtxoWatcherHandle? get watcher => LibArk.instance.api
       .crateArkClientArkWalletAutoAccessorGetWatcher(that: this);
+
+  set delegate(ArkDelegate? delegate) =>
+      LibArk.instance.api.crateArkClientArkWalletAutoAccessorSetDelegate(
+        that: this,
+        delegate: delegate,
+      );
 
   set inner(ArcClientEsploraClientWalletSqliteSwapStorage inner) => LibArk
       .instance
@@ -2227,6 +2442,10 @@ class ArkWalletImpl extends RustOpaque implements ArkWallet {
     address: address,
     sats: sats,
   );
+
+  /// The delegate authorised to renew this wallet's VTXOs, if any.
+  Future<ArkDelegate?> delegateInfo() =>
+      LibArk.instance.api.crateArkClientArkWalletDelegateInfo(that: this);
 
   /// Ark (off-chain) address. Now async: the SDK derives it through the key provider.
   Future<String> offchainAddress() =>

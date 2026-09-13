@@ -119,6 +119,9 @@ abstract class LibArkApiImplPlatform extends BaseApiImpl<LibArkWire> {
   String dco_decode_String(dynamic raw);
 
   @protected
+  ArkDelegate dco_decode_ark_delegate(dynamic raw);
+
+  @protected
   ArkIncomingPayment dco_decode_ark_incoming_payment(dynamic raw);
 
   @protected
@@ -132,6 +135,9 @@ abstract class LibArkApiImplPlatform extends BaseApiImpl<LibArkWire> {
   dco_decode_box_autoadd_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerArcVtxoWatcherHandle(
     dynamic raw,
   );
+
+  @protected
+  ArkDelegate dco_decode_box_autoadd_ark_delegate(dynamic raw);
 
   @protected
   PlatformInt64 dco_decode_box_autoadd_i_64(dynamic raw);
@@ -159,6 +165,9 @@ abstract class LibArkApiImplPlatform extends BaseApiImpl<LibArkWire> {
   dco_decode_opt_box_autoadd_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerArcVtxoWatcherHandle(
     dynamic raw,
   );
+
+  @protected
+  ArkDelegate? dco_decode_opt_box_autoadd_ark_delegate(dynamic raw);
 
   @protected
   PlatformInt64? dco_decode_opt_box_autoadd_i_64(dynamic raw);
@@ -264,6 +273,9 @@ abstract class LibArkApiImplPlatform extends BaseApiImpl<LibArkWire> {
   String sse_decode_String(SseDeserializer deserializer);
 
   @protected
+  ArkDelegate sse_decode_ark_delegate(SseDeserializer deserializer);
+
+  @protected
   ArkIncomingPayment sse_decode_ark_incoming_payment(
     SseDeserializer deserializer,
   );
@@ -279,6 +291,9 @@ abstract class LibArkApiImplPlatform extends BaseApiImpl<LibArkWire> {
   sse_decode_box_autoadd_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerArcVtxoWatcherHandle(
     SseDeserializer deserializer,
   );
+
+  @protected
+  ArkDelegate sse_decode_box_autoadd_ark_delegate(SseDeserializer deserializer);
 
   @protected
   PlatformInt64 sse_decode_box_autoadd_i_64(SseDeserializer deserializer);
@@ -304,6 +319,11 @@ abstract class LibArkApiImplPlatform extends BaseApiImpl<LibArkWire> {
   @protected
   ArcVtxoWatcherHandle?
   sse_decode_opt_box_autoadd_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerArcVtxoWatcherHandle(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  ArkDelegate? sse_decode_opt_box_autoadd_ark_delegate(
     SseDeserializer deserializer,
   );
 
@@ -430,6 +450,9 @@ abstract class LibArkApiImplPlatform extends BaseApiImpl<LibArkWire> {
   void sse_encode_String(String self, SseSerializer serializer);
 
   @protected
+  void sse_encode_ark_delegate(ArkDelegate self, SseSerializer serializer);
+
+  @protected
   void sse_encode_ark_incoming_payment(
     ArkIncomingPayment self,
     SseSerializer serializer,
@@ -445,6 +468,12 @@ abstract class LibArkApiImplPlatform extends BaseApiImpl<LibArkWire> {
   void
   sse_encode_box_autoadd_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerArcVtxoWatcherHandle(
     ArcVtxoWatcherHandle self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_ark_delegate(
+    ArkDelegate self,
     SseSerializer serializer,
   );
 
@@ -482,6 +511,12 @@ abstract class LibArkApiImplPlatform extends BaseApiImpl<LibArkWire> {
   void
   sse_encode_opt_box_autoadd_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerArcVtxoWatcherHandle(
     ArcVtxoWatcherHandle? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_ark_delegate(
+    ArkDelegate? self,
     SseSerializer serializer,
   );
 
