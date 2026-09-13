@@ -9,6 +9,7 @@ crate-type = ["cdylib", "staticlib"]
 [dependencies]
 flutter_rust_bridge = { version = "=2.11.1", features = ["anyhow"] }
 anyhow = "1"
+futures = "0.3"
 ark-bdk-wallet = { git = "https://github.com/arkade-os/rust-sdk.git", rev = "d8bc8a3" }
 ark-core = { git = "https://github.com/arkade-os/rust-sdk.git", rev = "d8bc8a3" }
 ark-client = { git = "https://github.com/arkade-os/rust-sdk.git", rev = "d8bc8a3", default-features = false, features = ["tls-webpki-roots", "sqlite"] }

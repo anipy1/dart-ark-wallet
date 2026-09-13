@@ -8,6 +8,7 @@ import '../lib.dart';
 import 'balance.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'server_info.dart';
+import 'subscribe.dart';
 import 'transactions.dart';
 
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`
@@ -93,4 +94,11 @@ abstract class ArkWallet implements RustOpaqueInterface {
   Future<String?> settle();
 
   Future<List<Transaction>> transactionHistory();
+
+  /// Stream VTXOs arriving on this wallet's off-chain address.
+  ///
+  /// The returned stream stays open until the server closes it or the Dart side stops
+  /// listening. Errors end the stream rather than being retried here, so the caller decides
+  /// whether to resubscribe.
+  Stream<ArkIncomingPayment> watchIncomingPayments();
 }

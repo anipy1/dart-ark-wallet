@@ -7,6 +7,7 @@ import 'ark/balance.dart';
 import 'ark/client.dart';
 import 'ark/esplora.dart';
 import 'ark/server_info.dart';
+import 'ark/subscribe.dart';
 import 'ark/transactions.dart';
 import 'ark/utils.dart';
 import 'dart:async';
@@ -109,7 +110,14 @@ abstract class LibArkApiImplPlatform extends BaseApiImpl<LibArkWire> {
   );
 
   @protected
+  RustStreamSink<ArkIncomingPayment>
+  dco_decode_StreamSink_ark_incoming_payment_Sse(dynamic raw);
+
+  @protected
   String dco_decode_String(dynamic raw);
+
+  @protected
+  ArkIncomingPayment dco_decode_ark_incoming_payment(dynamic raw);
 
   @protected
   Balance dco_decode_balance(dynamic raw);
@@ -247,7 +255,16 @@ abstract class LibArkApiImplPlatform extends BaseApiImpl<LibArkWire> {
   );
 
   @protected
+  RustStreamSink<ArkIncomingPayment>
+  sse_decode_StreamSink_ark_incoming_payment_Sse(SseDeserializer deserializer);
+
+  @protected
   String sse_decode_String(SseDeserializer deserializer);
+
+  @protected
+  ArkIncomingPayment sse_decode_ark_incoming_payment(
+    SseDeserializer deserializer,
+  );
 
   @protected
   Balance sse_decode_balance(SseDeserializer deserializer);
@@ -402,7 +419,19 @@ abstract class LibArkApiImplPlatform extends BaseApiImpl<LibArkWire> {
   );
 
   @protected
+  void sse_encode_StreamSink_ark_incoming_payment_Sse(
+    RustStreamSink<ArkIncomingPayment> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_String(String self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_ark_incoming_payment(
+    ArkIncomingPayment self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_balance(Balance self, SseSerializer serializer);

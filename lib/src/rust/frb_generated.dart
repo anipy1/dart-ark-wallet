@@ -7,6 +7,7 @@ import 'ark/balance.dart';
 import 'ark/client.dart';
 import 'ark/esplora.dart';
 import 'ark/server_info.dart';
+import 'ark/subscribe.dart';
 import 'ark/transactions.dart';
 import 'ark/utils.dart';
 import 'dart:async';
@@ -70,7 +71,7 @@ class LibArk extends BaseEntrypoint<LibArkApi, LibArkApiImpl, LibArkWire> {
   String get codegenVersion => '2.11.1';
 
   @override
-  int get rustContentHash => -1349188744;
+  int get rustContentHash => -908089123;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -143,6 +144,10 @@ abstract class LibArkApi extends BaseApi {
   Future<String?> crateArkClientArkWalletSettle({required ArkWallet that});
 
   Future<List<Transaction>> crateArkClientArkWalletTransactionHistory({
+    required ArkWallet that,
+  });
+
+  Stream<ArkIncomingPayment> crateArkClientArkWalletWatchIncomingPayments({
     required ArkWallet that,
   });
 
@@ -724,6 +729,47 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
       );
 
   @override
+  Stream<ArkIncomingPayment> crateArkClientArkWalletWatchIncomingPayments({
+    required ArkWallet that,
+  }) {
+    final sink = RustStreamSink<ArkIncomingPayment>();
+    unawaited(
+      handler.executeNormal(
+        NormalTask(
+          callFfi: (port_) {
+            final serializer = SseSerializer(generalizedFrbRustBinding);
+            sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerArkWallet(
+              that,
+              serializer,
+            );
+            sse_encode_StreamSink_ark_incoming_payment_Sse(sink, serializer);
+            pdeCallFfi(
+              generalizedFrbRustBinding,
+              serializer,
+              funcId: 15,
+              port: port_,
+            );
+          },
+          codec: SseCodec(
+            decodeSuccessData: sse_decode_unit,
+            decodeErrorData: sse_decode_AnyhowException,
+          ),
+          constMeta: kCrateArkClientArkWalletWatchIncomingPaymentsConstMeta,
+          argValues: [that, sink],
+          apiImpl: this,
+        ),
+      ),
+    );
+    return sink.stream;
+  }
+
+  TaskConstMeta get kCrateArkClientArkWalletWatchIncomingPaymentsConstMeta =>
+      const TaskConstMeta(
+        debugName: "ArkWallet_watch_incoming_payments",
+        argNames: ["that", "sink"],
+      );
+
+  @override
   Future<void> crateArkEsploraEsploraClientCheckConnection({
     required EsploraClient that,
   }) {
@@ -738,7 +784,7 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 15,
+            funcId: 16,
             port: port_,
           );
         },
@@ -769,7 +815,7 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 16,
+            funcId: 17,
             port: port_,
           );
         },
@@ -795,7 +841,7 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_String(address, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 17)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 18)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_bool,
@@ -818,7 +864,7 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_String(address, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 18)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 19)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_bool,
@@ -976,9 +1022,30 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
   }
 
   @protected
+  RustStreamSink<ArkIncomingPayment>
+  dco_decode_StreamSink_ark_incoming_payment_Sse(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    throw UnimplementedError();
+  }
+
+  @protected
   String dco_decode_String(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as String;
+  }
+
+  @protected
+  ArkIncomingPayment dco_decode_ark_incoming_payment(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 4)
+      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    return ArkIncomingPayment(
+      txid: dco_decode_String(arr[0]),
+      vout: dco_decode_u_32(arr[1]),
+      amount: dco_decode_i_64(arr[2]),
+      isPreconfirmed: dco_decode_bool(arr[3]),
+    );
   }
 
   @protected
@@ -1316,10 +1383,34 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
   }
 
   @protected
+  RustStreamSink<ArkIncomingPayment>
+  sse_decode_StreamSink_ark_incoming_payment_Sse(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    throw UnimplementedError('Unreachable ()');
+  }
+
+  @protected
   String sse_decode_String(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var inner = sse_decode_list_prim_u_8_strict(deserializer);
     return utf8.decoder.convert(inner);
+  }
+
+  @protected
+  ArkIncomingPayment sse_decode_ark_incoming_payment(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_txid = sse_decode_String(deserializer);
+    var var_vout = sse_decode_u_32(deserializer);
+    var var_amount = sse_decode_i_64(deserializer);
+    var var_isPreconfirmed = sse_decode_bool(deserializer);
+    return ArkIncomingPayment(
+      txid: var_txid,
+      vout: var_vout,
+      amount: var_amount,
+      isPreconfirmed: var_isPreconfirmed,
+    );
   }
 
   @protected
@@ -1741,9 +1832,38 @@ class LibArkApiImpl extends LibArkApiImplPlatform implements LibArkApi {
   }
 
   @protected
+  void sse_encode_StreamSink_ark_incoming_payment_Sse(
+    RustStreamSink<ArkIncomingPayment> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(
+      self.setupAndSerialize(
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_ark_incoming_payment,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+      ),
+      serializer,
+    );
+  }
+
+  @protected
   void sse_encode_String(String self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_list_prim_u_8_strict(utf8.encoder.convert(self), serializer);
+  }
+
+  @protected
+  void sse_encode_ark_incoming_payment(
+    ArkIncomingPayment self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.txid, serializer);
+    sse_encode_u_32(self.vout, serializer);
+    sse_encode_i_64(self.amount, serializer);
+    sse_encode_bool(self.isPreconfirmed, serializer);
   }
 
   @protected
@@ -2142,6 +2262,14 @@ class ArkWalletImpl extends RustOpaque implements ArkWallet {
 
   Future<List<Transaction>> transactionHistory() =>
       LibArk.instance.api.crateArkClientArkWalletTransactionHistory(that: this);
+
+  /// Stream VTXOs arriving on this wallet's off-chain address.
+  ///
+  /// The returned stream stays open until the server closes it or the Dart side stops
+  /// listening. Errors end the stream rather than being retried here, so the caller decides
+  /// whether to resubscribe.
+  Stream<ArkIncomingPayment> watchIncomingPayments() => LibArk.instance.api
+      .crateArkClientArkWalletWatchIncomingPayments(that: this);
 }
 
 @sealed
